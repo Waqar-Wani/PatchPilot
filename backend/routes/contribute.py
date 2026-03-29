@@ -14,7 +14,7 @@ class ContributeRequest(BaseModel):
 
 @router.post("/contribute")
 def contribute(req: ContributeRequest):
-    history = db["contributions"].distinct("repo_url", {"status": "done"})
+    history = db["contributions"].distinct("repo_url", {"status": "Done"})
     job     = new_contribution(req.repo_url, mode="manual")
     result  = db["contributions"].insert_one(job)
     job_id  = str(result.inserted_id)

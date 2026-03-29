@@ -28,7 +28,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
     try:
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},
-            {"$set": {"status": "running"}}
+            {"$set": {"status": "Running"}}
         )
 
         log("Building repo snapshot")
@@ -114,7 +114,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             db["contributions"].update_one(
                 {"_id": ObjectId(job_id)},
                 {"$set": {
-                    "status":      "skipped",
+                    "status":      "Skipped",
                     "action":      "SKIP",
                     "skip_reason": "No actionable issue found",
                     "updated_at":  datetime.utcnow()
@@ -128,7 +128,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             db["contributions"].update_one(
                 {"_id": ObjectId(job_id)},
                 {"$set": {
-                    "status":      "skipped",
+                    "status":      "Skipped",
                     "action":      "SKIP",
                     "skip_reason": reason,
                     "updated_at":  datetime.utcnow()
@@ -172,7 +172,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             db["contributions"].update_one(
                 {"_id": ObjectId(job_id)},
                 {"$set": {
-                    "status":      "skipped",
+                    "status":      "Skipped",
                     "action":      "SKIP",
                     "skip_reason": result.get("skip_reason"),
                     "updated_at":  datetime.utcnow()
@@ -191,7 +191,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},
             {"$set": {
-                "status":            "done",
+                "status":            "Done",
                 "action":            "CONTRIBUTE",
                 "pr_url":            pr_url,
                 "pr_title":          result["git"]["pr_title"],
@@ -206,5 +206,5 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         log(f"Error: {str(e)}")
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},
-            {"$set": {"status": "failed", "updated_at": datetime.utcnow()}}
+            {"$set": {"status": "Failed", "updated_at": datetime.utcnow()}}
         )
