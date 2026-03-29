@@ -79,5 +79,5 @@ npm run dev   # defaults to http://127.0.0.1:5174
 - dfds: Done For Developer Sanity—tiny, friendly PRs instead of giant refactors. 😅
 
 ## Known issues for testing
-- README lacks a quickstart example (left intentionally for PatchPilot to fill).
-- Security: dummy secrets committed in `exposed_credentials.txt` to verify leak detection.
+- README lacked a quickstart example (now addressed).
+- Dummy secrets were committed in `exposed_credentials.txt` for testing; file has been removed and ignored, see `SECURITY_FINDINGS.md`.
