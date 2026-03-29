@@ -3,6 +3,12 @@ from json import JSONDecodeError
 from openai import OpenAI
 from config import OPENROUTER_KEY, OPENROUTER_MODEL, OPENROUTER_BASE
 
+# Validate critical config early to avoid None.encode crashes in the client
+if not OPENROUTER_KEY or str(OPENROUTER_KEY).strip() == "":
+    raise ValueError("OPENROUTER_API_KEY is missing; set it in .env")
+if not OPENROUTER_BASE or str(OPENROUTER_BASE).strip() == "":
+    raise ValueError("OPENROUTER_BASE is missing; set it in .env")
+
 # OpenAI-compatible client pointed at OpenRouter
 client = OpenAI(api_key=OPENROUTER_KEY, base_url=OPENROUTER_BASE)
 
