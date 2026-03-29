@@ -17,7 +17,6 @@ function Navbar() {
     { to: "/", label: "Home" },
     { to: "/app", label: "Dashboard" },
     { to: "/how-it-works", label: "How it works" },
-    { to: "/security", label: "Security Findings" },
     { to: "/stats", label: "Stats" },
   ]
   return (
@@ -578,7 +577,6 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/app" element={<Dashboard />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/security" element={<SecurityPage />} />
           <Route path="/stats" element={<StatsPage />} />
         </Routes>
       </div>
