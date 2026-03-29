@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom"
+import { BrowserRouter, Routes, Route, NavLink, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import api from "./api/client"
 import "./styles.css"
@@ -14,7 +14,8 @@ const STATUS_COLORS = {
 
 function Navbar() {
   const links = [
-    { to: "/", label: "Dashboard" },
+    { to: "/", label: "Home" },
+    { to: "/app", label: "Dashboard" },
     { to: "/how-it-works", label: "How it works" },
     { to: "/security", label: "Security Findings" },
     { to: "/stats", label: "Stats" },
@@ -225,6 +226,99 @@ function Dashboard() {
   )
 }
 
+function LandingPage() {
+  const [stats, setStats] = useState(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    api.get("/stats").then((r) => setStats(r.data)).catch(() => setStats(null))
+  }, [])
+
+  const summary = stats?.summary
+
+  return (
+    <div className="grid" style={{ gap: 18 }}>
+      <motion.div
+        className="glass"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        style={{
+          padding: 22,
+          background: "linear-gradient(135deg, rgba(91,141,255,0.18), rgba(124,58,237,0.2))",
+        }}
+      >
+        <div style={{ display: "flex", gap: 18, alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div className="pill">PatchPilot · AI agent for tiny PRs</div>
+            <h1 style={{ fontSize: 30, margin: "12px 0 8px" }}>Ship safe PRs with measurable impact</h1>
+            <p style={{ color: "#cbd5f5", maxWidth: 560 }}>
+              PatchPilot scans repos, proposes small fixes, and opens PRs with security, docs, and maintenance
+              improvements. Now with live stats, costs, and credibility signals.
+            </p>
+            <div style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
+              <button className="btn-primary" onClick={() => navigate("/app")}>Open Dashboard</button>
+              <a
+                className="btn-ghost"
+                href="https://github.com/Waqar-Wani/PatchPilot"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                View Repo ↗
+              </a>
+            </div>
+          </div>
+          {summary && (
+            <div style={{ minWidth: 260, display: "grid", gap: 10 }}>
+              <div className="glass" style={{ padding: 12 }}>
+                <div style={{ color: "#9fb3ff", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>
+                  Completed PRs
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 800 }}>{summary.done}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>Out of {summary.total} runs</div>
+              </div>
+              <div className="glass" style={{ padding: 12 }}>
+                <div style={{ color: "#9fb3ff", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>
+                  Avg cost / fix
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 800 }}>
+                  {summary.avg_cost_per_fix ? `$${summary.avg_cost_per_fix.toFixed(4)}` : "—"}
+                </div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>Estimated token cost</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
+        <div className="glass" style={{ padding: 14 }}>
+          <div className="pill">Credibility</div>
+          <h3 className="card-title">Measured performance</h3>
+          <p style={{ color: "#cbd5f5" }}>
+            Every run logs tokens, cost, files changed, severity, and outcome. See the stats page for live numbers.
+          </p>
+        </div>
+        <div className="glass" style={{ padding: 14 }}>
+          <div className="pill">Safety</div>
+          <h3 className="card-title">Guardrails on by default</h3>
+          <p style={{ color: "#cbd5f5" }}>
+            Strict validation, delete restrictions, and evidence gates keep patches small and reversible.
+          </p>
+        </div>
+        <div className="glass" style={{ padding: 14 }}>
+          <div className="pill">Speed</div>
+          <h3 className="card-title">Tiny PRs in minutes</h3>
+          <p style={{ color: "#cbd5f5" }}>
+            Focus on single, high-confidence edits: README gaps, leaked secrets, and misconfigs.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function HowItWorks() {
   const steps = useMemo(
     () => [
@@ -375,7 +469,8 @@ export default function App() {
       <div className="layout">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/app" element={<Dashboard />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route path="/stats" element={<StatsPage />} />
