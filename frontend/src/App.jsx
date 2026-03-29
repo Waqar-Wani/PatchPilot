@@ -273,7 +273,7 @@ function LandingPage() {
         }}
       >
         <div style={{ display: "flex", gap: 18, alignItems: "center", justifyContent: "space-between" }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <div className="pill">PatchPilot · AI agent for tiny PRs</div>
             <h1 style={{ fontSize: 30, margin: "12px 0 8px" }}>Ship safe PRs with measurable impact</h1>
             <p style={{ color: "#cbd5f5", maxWidth: 560 }}>
@@ -293,26 +293,37 @@ function LandingPage() {
               </a>
             </div>
           </div>
-          {summary && (
-            <div style={{ minWidth: 260, display: "grid", gap: 10 }}>
-              <div className="glass" style={{ padding: 12 }}>
-                <div style={{ color: "#9fb3ff", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>
-                  Completed PRs
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+            <div className="hero-visual">
+              <div className="floating-orb orb-1" />
+              <div className="floating-orb orb-2" />
+              <div className="floating-orb orb-3" />
+              <div className="mini-stats">
+                <div className="mini-card">
+                  <span>Completed PRs</span>
+                  <strong>{summary ? summary.done : "—"}</strong>
+                  <small>{summary ? `Out of ${summary.total} runs` : "Live pull requests"}</small>
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800 }}>{summary.done}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>Out of {summary.total} runs</div>
-              </div>
-              <div className="glass" style={{ padding: 12 }}>
-                <div style={{ color: "#9fb3ff", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>
-                  Avg cost / fix
+                <div className="mini-card">
+                  <span>Avg cost / fix</span>
+                  <strong>{summary?.avg_cost_per_fix ? `$${summary.avg_cost_per_fix.toFixed(4)}` : "—"}</strong>
+                  <small>Estimated tokens</small>
                 </div>
-                <div style={{ fontSize: 22, fontWeight: 800 }}>
-                  {summary.avg_cost_per_fix ? `$${summary.avg_cost_per_fix.toFixed(4)}` : "—"}
+                <div className="bars">
+                  {[50, 70, 40, 90, 60].map((h, i) => (
+                    <motion.div
+                      key={i}
+                      className="bar"
+                      style={{ height: h }}
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: 1 }}
+                      transition={{ delay: i * 0.1, type: "spring", stiffness: 120 }}
+                    />
+                  ))}
                 </div>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>Estimated token cost</div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </motion.div>
 

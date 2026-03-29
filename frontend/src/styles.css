@@ -108,6 +108,67 @@ button { font-family: inherit; }
   font-size: 18px;
 }
 
+.hero-visual {
+  position: relative;
+  width: 320px;
+  height: 220px;
+  background: radial-gradient(circle at 30% 20%, rgba(91,141,255,0.35), transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(124,58,237,0.35), transparent 45%),
+              linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.floating-orb {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  filter: blur(12px);
+  opacity: 0.6;
+  animation: float 8s ease-in-out infinite;
+}
+.orb-1 { background: #5b8dff; top: -20px; left: -30px; }
+.orb-2 { background: #7c3aed; bottom: -10px; right: -20px; animation-delay: 1s; }
+.orb-3 { background: #22d3ee; top: 60px; right: 40px; animation-delay: 2s; }
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.mini-stats {
+  position: absolute;
+  inset: 14px;
+  display: grid;
+  gap: 10px;
+  z-index: 2;
+}
+.mini-card {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+.mini-card span { color: #9fb3ff; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.mini-card strong { display: block; font-size: 20px; margin: 4px 0; }
+.mini-card small { color: #94a3b8; font-size: 12px; }
+.bars {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: end;
+  gap: 6px;
+  height: 70px;
+}
+.bar {
+  width: 100%;
+  background: linear-gradient(180deg, #7dd3fc, #5b8dff);
+  border-radius: 8px 8px 4px 4px;
+  transform-origin: bottom;
+}
+
 .log-panel {
   font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 12px;
