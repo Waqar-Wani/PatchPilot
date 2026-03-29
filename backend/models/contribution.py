@@ -4,7 +4,7 @@ def new_contribution(repo_url: str, mode: str) -> dict:
     return {
         "repo_url":           repo_url,
         "mode":               mode,
-        "status":             "pending",
+        "status":             "Pending",
         "action":             None,
         "skip_reason":        None,
         "pr_url":             None,

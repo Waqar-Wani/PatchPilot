@@ -32,7 +32,7 @@ function Navbar() {
               padding: "8px 12px",
               borderRadius: 10,
               textDecoration: "none",
-              color: isActive ? "#fff" : "#cbd5f5",
+              color: isActive ? "#fff" : "#0B1224",
               background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
               border: "1px solid rgba(255,255,255,0.08)",
             })}
@@ -116,7 +116,7 @@ function JobsTable({ jobs, onSelect, selected, pagination, onPage }) {
                 <td style={{ maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {j.repo_url.replace("https://github.com/", "")}
                 </td>
-                <td style={{ color: "#cbd5f5" }}>{j.contribution_type || "—"}</td>
+                <td style={{ color: "#0B1224" }}>{j.contribution_type || "—"}</td>
                 <td>
                   <span className="status" style={{ color: STATUS_COLORS[(j.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())] }}>
                     {(j.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())}
@@ -345,7 +345,7 @@ function LandingPage() {
           >
             <div className="pill">{card.title}</div>
             <h3 className="card-title">{card.heading}</h3>
-            <p style={{ color: "#cbd5f5" }}>{card.body}</p>
+            <p style={{ color: "#0B1224" }}>{card.body}</p>
           </motion.div>
         ))}
       </div>
@@ -404,7 +404,7 @@ function LandingPage() {
         viewport={{ once: true, amount: 0.3 }}
       >
         <div className="pill">DFDs & data flow (text)</div>
-        <p style={{ color: "#cbd5f5", marginBottom: 6 }}>
+        <p style={{ color: "#0B1224", marginBottom: 6 }}>
           Request → Snapshot → LLM plan → Validation → Git apply → PR → Metrics → Stats.
         </p>
         <p style={{ color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>
@@ -412,6 +412,25 @@ function LandingPage() {
           Stores: Mongo (jobs, logs, metrics), Redis (tasks), GitHub PRs. Controls: delete whitelist, empty-content guard,
           branch defaults, fork safety for read-only repos.
         </p>
+      </motion.div>
+
+      <motion.div
+        className="glass"
+        style={{ padding: 18 }}
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+      >
+        <div className="pill">Visual DFD</div>
+        <p style={{ marginTop: 8, color: "#0b1224" }}>
+          Architecture data-flow diagram (drop your image in <code>frontend/public/dfd.png</code> to replace the placeholder).
+        </p>
+        <div className="dfd-frame">
+          <img src="/dfd.png" alt="PatchPilot data flow diagram" className="dfd-img" onError={(e)=>{e.target.style.display='none';}} />
+          <div className="dfd-placeholder">
+            DFD image not found. Add your diagram at <code>frontend/public/dfd.png</code>.
+          </div>
+        </div>
       </motion.div>
     </div>
   )
@@ -434,7 +453,7 @@ function HowItWorks() {
           <div key={i} className="glass" style={{ padding: 16 }}>
             <div className="pill">Step {i + 1}</div>
             <h3 className="card-title">{s.title}</h3>
-            <p style={{ color: "#cbd5f5", margin: 0 }}>{s.body}</p>
+            <p style={{ color: "#0B1224", margin: 0 }}>{s.body}</p>
           </div>
         ))}
       </div>
@@ -446,11 +465,11 @@ function SecurityPage() {
   return (
     <motion.div className="glass" style={{ padding: 18 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h2 style={{ marginTop: 0 }}>Security findings</h2>
-      <p style={{ color: "#cbd5f5" }}>
+      <p style={{ color: "#0B1224" }}>
         When PatchPilot detects possible secrets or misconfig (e.g., .env files, tokens, hardcoded URLs), it adds a
         `SECURITY_FINDINGS.md` file summarizing what to fix without exposing sensitive values.
       </p>
-      <p style={{ color: "#cbd5f5" }}>
+      <p style={{ color: "#0B1224" }}>
         Run a fresh contribution on any repo to see this in action; findings will appear in the PR and job log.
       </p>
     </motion.div>

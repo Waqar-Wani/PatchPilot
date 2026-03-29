@@ -88,7 +88,8 @@ button { font-family: inherit; }
 }
 
 .layout {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 32px 22px 60px;
 }
@@ -107,7 +108,7 @@ button { font-family: inherit; }
 .arch-grid ul {
   margin: 6px 0 0;
   padding-left: 18px;
-  color: #cbd5f5;
+  color: #0B1224;
   line-height: 1.5;
   font-size: 14px;
 }
@@ -180,6 +181,32 @@ button { font-family: inherit; }
   background: linear-gradient(180deg, #facc15, #f59e0b);
   border-radius: 8px 8px 4px 4px;
   transform-origin: bottom;
+}
+
+.dfd-frame {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  border: 1px dashed rgba(15,23,42,0.18);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.7);
+  overflow: hidden;
+}
+.dfd-img {
+  width: 100%;
+  display: block;
+}
+.dfd-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px;
+  pointer-events: none;
 }
 
 .log-panel {
