@@ -104,8 +104,10 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             result["allowed_deletes"] = [f["path"] for f in sensitive]
             log("Security remediation plan assembled")
 
-        # Evidence gate: only proceed if we have a verified issue (sensitive files)
-        evidence_present = bool(sensitive)
+        # Evidence gate:
+        # proceed if we detected sensitive files OR the AI proposed any changes
+        # (e.g., docs/README/maintenance improvements without a verified bug).
+        evidence_present = bool(sensitive or result["changes"])
         if not evidence_present:
             log("No evidence found; skipping")
             db["contributions"].update_one(
