@@ -2,17 +2,41 @@ import os, shutil
 from git import Repo
 from github import Github
 from config import GITHUB_TOKEN, CLONE_DIR
+import time
 
 g = Github(GITHUB_TOKEN)
 
-def run_contribution(repo_url: str, ai_result: dict, log) -> str:
+def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") -> str:
     name       = repo_url.replace("https://github.com/", "").strip("/")
     local_path = os.path.join(CLONE_DIR, name.replace("/", "_"))
     allowed_deletes = set(ai_result.get("allowed_deletes", []))
+    current_user = g.get_user().login
+    repo = g.get_repo(name)
+
+    # resolve permission-aware mode
+    resolved_mode = mode
+    if name.split("/")[0].lower() != current_user.lower():
+        resolved_mode = "fork_and_pr"
+    try:
+        if not getattr(repo.permissions, "push", False):
+            resolved_mode = "fork_and_pr"
+    except Exception:
+        resolved_mode = "fork_and_pr"  # safe default
+
+    push_repo = repo
+    pr_head = ai_result["git"].get("branch_name") or "patchpilot/auto"
+
+    if resolved_mode == "fork_and_pr":
+        log("Forking repository (no direct push permission)")
+        fork = repo.create_fork()
+        push_repo = fork
+        pr_head = f"{current_user}:{pr_head}"
+        # allow fork to be ready
+        time.sleep(2)
 
     try:
-        log("Cloning repository")
-        auth_url   = repo_url.replace("https://", f"https://{GITHUB_TOKEN}@")
+        log(f"Cloning repository ({'fork' if resolved_mode=='fork_and_pr' else 'origin'})")
+        auth_url   = push_repo.clone_url.replace("https://", f"https://{GITHUB_TOKEN}@")
         local_repo = Repo.clone_from(auth_url, local_path)
 
         branch = ai_result["git"].get("branch_name") or "patchpilot/auto"
@@ -70,12 +94,11 @@ def run_contribution(repo_url: str, ai_result: dict, log) -> str:
         local_repo.git.push("origin", branch)
         log("Branch pushed")
 
-        gh_repo = g.get_repo(name)
-        pr = gh_repo.create_pull(
+        pr = repo.create_pull(
             title=ai_result["git"]["pr_title"],
             body=ai_result["git"]["pr_body"],
-            head=branch,
-            base=gh_repo.default_branch
+            head=pr_head,
+            base=repo.default_branch
         )
         log(f"PR opened: {pr.html_url}")
         return pr.html_url

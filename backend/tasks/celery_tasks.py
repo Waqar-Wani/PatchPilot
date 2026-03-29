@@ -177,7 +177,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             return
 
         log("AI approved — making contribution")
-        pr_url = run_contribution(repo_url, result, log)
+        pr_url = run_contribution(repo_url, result, log, mode)
 
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},
