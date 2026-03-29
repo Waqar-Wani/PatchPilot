@@ -92,12 +92,22 @@ def build_snapshot(repo_url: str, history: list) -> dict:
     except Exception:
         languages = []
 
+    file_tree = get_file_tree(repo)
+    sensitive_files = collect_sensitive_files(repo)
+
+    # Fallback: if collect_sensitive_files missed but file_tree shows sensitive names, add stubs
+    for line in file_tree.splitlines():
+        lower = line.lower()
+        if any(h in lower for h in SENSITIVE_NAME_HINTS):
+            if not any(f["path"].lower() == line.lower() for f in sensitive_files):
+                sensitive_files.append({"path": line.strip(), "content": ""})
+
     return {
         "repo_url":             repo_url,
-        "file_tree":            get_file_tree(repo),
+        "file_tree":            file_tree,
         "readme":               get_file(repo, "README.md"),
         "target_files":         target_files,
-        "sensitive_files":      collect_sensitive_files(repo),
+        "sensitive_files":      sensitive_files,
         "open_issues":          issues,
         "languages":            languages,
         "contribution_history": history,

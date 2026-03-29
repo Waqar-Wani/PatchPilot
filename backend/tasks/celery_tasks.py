@@ -34,6 +34,13 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
 
         # Fallback: if secrets are present but AI chose to skip or didn't plan removals, enforce security remediation.
         sensitive = snapshot.get("sensitive_files") or []
+        if not sensitive:
+            # Fallback: detect by filename hints in file_tree
+            for line in (snapshot.get("file_tree") or "").splitlines():
+                low = line.lower()
+                if any(h in low for h in ("secret", "credential", "token", "key", ".env", ".pem", ".pfx", ".p12", ".keystore")):
+                    sensitive.append({"path": line.strip(), "content": ""})
+
         if sensitive:
             if result.get("action") == "SKIP":
                 result["action"] = "CONTRIBUTE"
