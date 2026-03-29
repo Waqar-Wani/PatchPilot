@@ -2,6 +2,12 @@
 
 PatchPilot is a full-stack dashboard that lets you paste any public GitHub repo and have an AI make a safe, small contribution, open a PR, and show live progress. It also checks for README gaps and possible secret leaks, dropping findings into `SECURITY_FINDINGS.md`. (Yes, even the mysterious **dfds** use‑case is covered. 😉)
 
+## At-a-glance 📊
+- 🖥️ UI: Dashboard, live logs, stats page (/stats) with cost/tokens/lines changed, severity, PR links.
+- 🤖 Agent flow: Snapshot ➜ LLM plan ➜ Safety gates ➜ Git patch ➜ PR ➜ Metrics.
+- 🔐 Safety: Delete whitelist, non-empty-content checks, fork fallback if no push rights, secret remediation with SECURITY_FINDINGS.md.
+- 🧾 Docs-first: If a repo has no README, PatchPilot will craft a concise README with purpose, features, and quickstart.
+
 ## Features ✨
 - 📡 Paste a repo URL and kick off an AI-driven contribution job.
 - 🧠 Snapshot + analysis to propose docs/tests or security findings.
@@ -9,6 +15,7 @@ PatchPilot is a full-stack dashboard that lets you paste any public GitHub repo 
 - 📺 Live job/status/logs in a modern React UI with animations.
 - 🧹 Delete completed jobs from the UI.
 - 🔒 Secret/misconfig detection summary in `SECURITY_FINDINGS.md`.
+- 📈 Stats page with pagination: success/skip/fail counts, cost per fix, tokens, severity, files/lines changed, PR links.
 
 ## Tech Stack 🧰
 - Frontend: React + Vite, React Router, Framer Motion, Axios.
@@ -60,6 +67,13 @@ cd frontend
 npm install
 npm run dev   # defaults to http://127.0.0.1:5174
 ```
+
+## How it works (infographic-style) 🧭
+1) 📥 Scan: read README (if present), key files, file tree, issues; build snapshot.
+2) 🧠 Analyze: LLM proposes the smallest safe fix (docs/tests/security).
+3) 🛡️ Validate: evidence gate, delete whitelist, non-empty content, branch defaults.
+4) 🔀 Apply: fork if no push rights; commit and push branch; open PR.
+5) 📊 Measure: log tokens, cost, files/lines, severity, PR URL to `/api/stats` (shown in UI Stats).
 
 ## Usage 🖱️
 1. Open the UI at `http://127.0.0.1:5174`.
