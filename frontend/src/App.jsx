@@ -329,9 +329,10 @@ function LandingPage() {
 
       <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
         {[
-          { title: "Credibility", body: "Every run logs tokens, cost, files changed, severity, and outcome. See the stats page for live numbers." },
-          { title: "Safety", body: "Strict validation, delete restrictions, and evidence gates keep patches small and reversible." },
-          { title: "Speed", body: "Focus on single, high-confidence edits: README gaps, leaked secrets, and misconfigs." },
+          { title: "Credibility", heading: "Measured performance", body: "Every run logs tokens, cost, files changed, severity, and outcome. See the stats page for live numbers." },
+          { title: "Safety", heading: "Guardrails on by default", body: "Strict validation, delete restrictions, and evidence gates keep patches small and reversible." },
+          { title: "Speed", heading: "Tiny PRs in minutes", body: "Focus on single, high-confidence edits: README gaps, leaked secrets, and misconfigs." },
+          { title: "Trust", heading: "Transparent PRs", body: "Readable diffs, SECURITY_FINDINGS, and logs embedded in every job for quick review." },
         ].map((card, i) => (
           <motion.div
             key={card.title}
@@ -343,7 +344,7 @@ function LandingPage() {
             transition={{ delay: i * 0.08 }}
           >
             <div className="pill">{card.title}</div>
-            <h3 className="card-title">{card.title === "Credibility" ? "Measured performance" : card.title === "Safety" ? "Guardrails on by default" : "Tiny PRs in minutes"}</h3>
+            <h3 className="card-title">{card.heading}</h3>
             <p style={{ color: "#cbd5f5" }}>{card.body}</p>
           </motion.div>
         ))}
