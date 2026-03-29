@@ -1,0 +1,280 @@
+import { useEffect, useMemo, useState } from "react"
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import api from "./api/client"
+import "./styles.css"
+
+const STATUS_COLORS = {
+  pending: "#9ca3af",
+  running: "#38bdf8",
+  done: "#22c55e",
+  skipped: "#f59e0b",
+  failed: "#ef4444",
+}
+
+function Navbar() {
+  const links = [
+    { to: "/", label: "Dashboard" },
+    { to: "/how-it-works", label: "How it works" },
+    { to: "/security", label: "Security Findings" },
+  ]
+  return (
+    <div className="glass" style={{ display: "flex", alignItems: "center", padding: "12px 16px", gap: 14, marginBottom: 18 }}>
+      <div style={{ fontWeight: 800, letterSpacing: 0.4, fontSize: 16 }}>PatchPilot</div>
+      <div style={{ display: "flex", gap: 10, fontSize: 14 }}>
+        {links.map((l) => (
+          <NavLink
+            key={l.to}
+            to={l.to}
+            style={({ isActive }) => ({
+              padding: "8px 12px",
+              borderRadius: 10,
+              textDecoration: "none",
+              color: isActive ? "#fff" : "#cbd5f5",
+              background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
+              border: "1px solid rgba(255,255,255,0.08)",
+            })}
+          >
+            {l.label}
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Hero({ onSubmit, url, setUrl }) {
+  return (
+    <motion.div
+      className="glass"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{ padding: "18px", marginBottom: 16 }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <div>
+          <div className="pill">Auto-contribute · AI powered</div>
+          <h1 style={{ margin: "10px 0 6px", fontSize: 24, letterSpacing: -0.2 }}>Ship tiny PRs fast</h1>
+          <p style={{ margin: 0, color: "#cdd9f5", fontSize: 14 }}>
+            Paste any public GitHub repo. PatchPilot scans README, hunts secrets/misconfigs, and opens a PR with small, safe fixes.
+          </p>
+        </div>
+        <div style={{ minWidth: 320, maxWidth: 420 }}>
+          <div className="glass" style={{ padding: 12, borderRadius: 14 }}>
+            <input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://github.com/owner/repo"
+              style={{
+                width: "100%",
+                padding: "12px",
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.04)",
+                color: "#fff",
+                fontSize: 14,
+                marginBottom: 10,
+              }}
+            />
+            <button className="btn-primary" onClick={onSubmit} style={{ width: "100%" }}>
+              Contribute
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function JobsTable({ jobs, onSelect, selected }) {
+  return (
+    <div className="glass" style={{ padding: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <h3 style={{ margin: 0, fontSize: 16 }}>Recent jobs</h3>
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Repo</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>PR</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {jobs.map((j) => (
+              <tr
+                key={j._id}
+                onClick={() => onSelect(j._id)}
+                style={{ cursor: "pointer", background: selected === j._id ? "rgba(255,255,255,0.04)" : "transparent" }}
+              >
+                <td style={{ maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {j.repo_url.replace("https://github.com/", "")}
+                </td>
+                <td style={{ color: "#cbd5f5" }}>{j.contribution_type || "—"}</td>
+                <td>
+                  <span className="status" style={{ color: STATUS_COLORS[j.status] }}>
+                    {j.status}
+                  </span>
+                </td>
+                <td>
+                  {j.pr_url ? (
+                    <a href={j.pr_url} target="_blank" rel="noreferrer" style={{ color: "#7dd3fc" }}>
+                      View PR
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  <button className="btn-ghost" style={{ padding: "6px 10px" }} onClick={() => onSelect(j._id, true)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function LogsPanel({ logs, onClose }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 12 }}
+      className="glass"
+      style={{ padding: 14 }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <strong>Logs</strong>
+        <button className="btn-ghost" onClick={onClose}>
+          Close
+        </button>
+      </div>
+      <div className="log-panel">
+        {logs.length === 0 ? (
+          <span style={{ color: "#6b7280" }}>Waiting for logs...</span>
+        ) : (
+          logs.map((l, i) => (
+            <div key={i}>
+              <span style={{ color: "#6b7280" }}>{l.time.slice(11, 19)}</span>{" "}
+              {l.msg}
+            </div>
+          ))
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+function Dashboard() {
+  const [url, setUrl] = useState("")
+  const [jobs, setJobs] = useState([])
+  const [selected, setSelected] = useState(null)
+  const [logs, setLogs] = useState([])
+
+  const fetchJobs = () => api.get("/jobs").then((r) => setJobs(r.data))
+
+  useEffect(() => {
+    fetchJobs()
+    const t = setInterval(fetchJobs, 4000)
+    return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    if (!selected) return
+    const t = setInterval(() => {
+      api.get(`/jobs/${selected}`).then((r) => setLogs(r.data.logs || []))
+    }, 2000)
+    return () => clearInterval(t)
+  }, [selected])
+
+  const submit = async () => {
+    if (!url.trim()) return
+    await api.post("/contribute", { repo_url: url.trim() })
+    setUrl("")
+    fetchJobs()
+  }
+
+  const deleteJob = async (id) => {
+    const yes = window.confirm("Delete this job?")
+    if (!yes) return
+    await api.delete(`/jobs/${id}`)
+    if (selected === id) setSelected(null)
+    fetchJobs()
+  }
+
+  return (
+    <div className="grid" style={{ gap: 18 }}>
+      <Hero url={url} setUrl={setUrl} onSubmit={submit} />
+      <JobsTable
+        jobs={jobs}
+        onSelect={(id, deleteOnly = false) => (deleteOnly ? deleteJob(id) : setSelected(id))}
+        selected={selected}
+      />
+      <AnimatePresence>{selected && <LogsPanel logs={logs} onClose={() => setSelected(null)} />}</AnimatePresence>
+    </div>
+  )
+}
+
+function HowItWorks() {
+  const steps = useMemo(
+    () => [
+      { title: "Scan & snapshot", body: "We fetch README, key files, open issues, and build a concise snapshot." },
+      { title: "Analyze", body: "LLM selects a small, safe improvement: docs, tests, or security notes." },
+      { title: "Patch & PR", body: "We branch, apply the patch, push, and open a PR with friendly context." },
+    ],
+    []
+  )
+  return (
+    <motion.div className="glass" style={{ padding: 18 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <h2 style={{ marginTop: 0 }}>How it works</h2>
+      <div className="hero-grid">
+        {steps.map((s, i) => (
+          <div key={i} className="glass" style={{ padding: 16 }}>
+            <div className="pill">Step {i + 1}</div>
+            <h3 className="card-title">{s.title}</h3>
+            <p style={{ color: "#cbd5f5", margin: 0 }}>{s.body}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+function SecurityPage() {
+  return (
+    <motion.div className="glass" style={{ padding: 18 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <h2 style={{ marginTop: 0 }}>Security findings</h2>
+      <p style={{ color: "#cbd5f5" }}>
+        When PatchPilot detects possible secrets or misconfig (e.g., .env files, tokens, hardcoded URLs), it adds a
+        `SECURITY_FINDINGS.md` file summarizing what to fix without exposing sensitive values.
+      </p>
+      <p style={{ color: "#cbd5f5" }}>
+        Run a fresh contribution on any repo to see this in action; findings will appear in the PR and job log.
+      </p>
+    </motion.div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="layout">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/security" element={<SecurityPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  )
+}

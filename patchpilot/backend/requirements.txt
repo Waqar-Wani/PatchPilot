@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+celery
+redis
+motor
+pymongo
+openai
+PyGithub
+gitpython
+python-dotenv
