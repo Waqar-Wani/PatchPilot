@@ -272,7 +272,7 @@ function LandingPage() {
           background: "linear-gradient(135deg, rgba(255, 214, 102, 0.35), rgba(124, 175, 255, 0.28))",
         }}
       >
-        <div style={{ display: "flex", gap: 18, alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", gap: 18, alignItems: "center", justifyContent: "space-between", color: "#0a0a0a" }}>
           <div style={{ flex: 1 }}>
             <div className="pill">PatchPilot · AI agent for tiny PRs</div>
             <h1 style={{ fontSize: 30, margin: "12px 0 8px" }}>Ship safe PRs with measurable impact</h1>
@@ -403,32 +403,12 @@ function LandingPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
       >
-        <div className="pill">DFDs & data flow (text)</div>
-        <p style={{ color: "#0B1224", marginBottom: 6 }}>
-          Request → Snapshot → LLM plan → Validation → Git apply → PR → Metrics → Stats.
-        </p>
-        <p style={{ color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>
-          Inputs: repo URL, prior history. Outputs: PR link, SECURITY_FINDINGS, metrics (tokens, cost, files/lines, severity).
-          Stores: Mongo (jobs, logs, metrics), Redis (tasks), GitHub PRs. Controls: delete whitelist, empty-content guard,
-          branch defaults, fork safety for read-only repos.
-        </p>
-      </motion.div>
-
-      <motion.div
-        className="glass"
-        style={{ padding: 18 }}
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-      >
         <div className="pill">Visual DFD</div>
         <p style={{ marginTop: 8, color: "#0b1224" }}>
-          Architecture data-flow diagram (drop your image in <code>frontend/public/dfd.png</code> to replace the placeholder).
         </p>
         <div className="dfd-frame">
           <img src="/dfd.png" alt="PatchPilot data flow diagram" className="dfd-img" onError={(e)=>{e.target.style.display='none';}} />
           <div className="dfd-placeholder">
-            DFD image not found. Add your diagram at <code>frontend/public/dfd.png</code>.
           </div>
         </div>
       </motion.div>
