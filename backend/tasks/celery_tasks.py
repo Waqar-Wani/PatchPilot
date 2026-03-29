@@ -7,6 +7,7 @@ from config import MONGO_URI
 from datetime import datetime
 from bson import ObjectId
 import uuid
+import traceback
 
 SENSITIVE_HINTS = ("secret", "credential", "token", "key", ".env", ".pem", ".pfx", ".p12", ".keystore")
 
@@ -179,7 +180,12 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             return
 
         log("AI approved — making contribution")
-        pr_url = run_contribution(repo_url, result, log, mode)
+        try:
+            pr_url = run_contribution(repo_url, result, log, mode)
+        except Exception as inner_e:
+            log(f"Contribution failed: {inner_e!r}")
+            log(traceback.format_exc())
+            raise
 
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},

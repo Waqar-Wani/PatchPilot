@@ -1,4 +1,4 @@
-import os, shutil
+import os, shutil, traceback
 from git import Repo
 from github import Github
 from config import GITHUB_TOKEN, CLONE_DIR
@@ -101,14 +101,19 @@ def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") 
         if not repo.default_branch:
             raise ValueError("Target repo default branch is missing")
 
-        pr = repo.create_pull(
-            title=str(pr_title),
-            body=str(pr_body),
-            head=str(pr_head),
-            base=str(repo.default_branch)
-        )
-        log(f"PR opened: {pr.html_url}")
-        return pr.html_url
+        try:
+            pr = repo.create_pull(
+                title=str(pr_title),
+                body=str(pr_body),
+                head=str(pr_head),
+                base=str(repo.default_branch)
+            )
+            log(f"PR opened: {pr.html_url}")
+            return pr.html_url
+        except Exception as e:
+            log(f"create_pull failed: {e!r}")
+            log(traceback.format_exc())
+            raise
 
     finally:
         if os.path.exists(local_path):
