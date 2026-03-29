@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from services.repo_scanner import build_snapshot
 from services.ai_service import analyze_repo
 from services.github_service import run_contribution
-from config import MONGO_URI
+from config import MONGO_URI, OPENROUTER_COST_PER_1K
 from datetime import datetime
 from bson import ObjectId
 import uuid
@@ -36,6 +36,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
 
         log("Analyzing with AI")
         result = analyze_repo(snapshot)
+        usage  = result.pop("_usage", None)
 
         # Ensure git block exists with sane defaults
         result.setdefault("git", {})
@@ -198,6 +199,21 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
                 "branch":            result["git"]["branch_name"],
                 "contribution_type": result["analysis"]["contribution_type"],
                 "confidence":        result["confidence"],
+                "metrics": {
+                    "files":   {
+                        "created": sum(1 for c in result["changes"] if c["change_type"] == "create"),
+                        "edited":  sum(1 for c in result["changes"] if c["change_type"] == "edit"),
+                        "deleted": sum(1 for c in result["changes"] if c["change_type"] == "delete"),
+                    },
+                    "changes": {
+                        "lines_added": sum((c.get("replacement_snippet") or "").count("\n") + 1 for c in result["changes"] if c["change_type"] in {"create", "edit"}),
+                        "lines_removed": sum((c.get("original_snippet") or "").count("\n") + 1 for c in result["changes"] if c["change_type"] == "edit" and c.get("original_snippet")),
+                    },
+                    "severity": "critical" if result["analysis"].get("contribution_type") == "security" else "medium",
+                    "time_seconds": None,
+                    "tokens_used": usage.get("total_tokens") if usage else None,
+                    "cost_usd": ((usage.get("total_tokens") or 0) / 1000 * OPENROUTER_COST_PER_1K) if usage else None,
+                },
                 "updated_at":        datetime.utcnow()
             }}
         )

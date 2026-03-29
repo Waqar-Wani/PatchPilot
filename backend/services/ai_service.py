@@ -53,4 +53,12 @@ def analyze_repo(snapshot: dict) -> dict:
         ],
     )
     content = response.choices[0].message.content or ""
-    return _parse_json_content(content)
+    parsed = _parse_json_content(content)
+    usage = getattr(response, "usage", None)
+    if usage:
+        parsed["_usage"] = {
+            "prompt_tokens": usage.prompt_tokens,
+            "completion_tokens": usage.completion_tokens,
+            "total_tokens": usage.total_tokens,
+        }
+    return parsed

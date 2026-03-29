@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.contribute import router as contribute_router
 from routes.status import router as status_router
+from routes.stats import router as stats_router
 
 app = FastAPI(title="PatchPilot")
 
@@ -19,3 +20,4 @@ app.add_middleware(
 
 app.include_router(contribute_router, prefix="/api")
 app.include_router(status_router,     prefix="/api")
+app.include_router(stats_router,      prefix="/api")

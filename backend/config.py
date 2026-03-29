@@ -15,3 +15,5 @@ OPENROUTER_KEY    = os.getenv("OPENROUTER_API_KEY")
 # Use a widely available free-tier model on OpenRouter
 OPENROUTER_MODEL  = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-chat")
 OPENROUTER_BASE   = os.getenv("OPENROUTER_BASE", "https://openrouter.ai/api/v1")
+# Optional: cost per 1K tokens in USD for budgeting/metrics
+OPENROUTER_COST_PER_1K = float(os.getenv("OPENROUTER_COST_PER_1K", "0.002"))
