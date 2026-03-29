@@ -1,3 +1,4 @@
+exposed_credentials.txt
 .env
 __pycache__
 *.pyc
@@ -5,3 +6,4 @@ node_modules
 dist
 .env.local
 .DS_Store
+exposed_credentials.txt

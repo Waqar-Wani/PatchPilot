@@ -80,4 +80,4 @@ npm run dev   # defaults to http://127.0.0.1:5174
 
 ## Known issues for testing
 - README lacked a quickstart example (now addressed).
-- Dummy secrets were committed in `exposed_credentials.txt` for testing; file has been removed and ignored, see `SECURITY_FINDINGS.md`.
+- Dummy secrets were committed in `exposed_credentials.txt` for testing; file has been permanently removed and added to `.gitignore`, see `SECURITY_FINDINGS.md`.
