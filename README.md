@@ -78,6 +78,33 @@ npm run dev   # defaults to http://127.0.0.1:5174
 - Skips only on hard blockers (no access/binary-only). Otherwise, it prefers a small contribution.
 - dfds: Done For Developer Sanity—tiny, friendly PRs instead of giant refactors. 😅
 
+## Quickstart Example
+```bash
+# Clone the repo
+git clone https://github.com/Waqar-Wani/PatchPilot
+cd PatchPilot
+
+# Set up environment variables
+cp .env.example .env
+# Fill in the required values in .env
+
+# Start the backend
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8002
+
+# Start the worker
+celery -A celery_app worker --loglevel=info --pool=solo
+
+# Start the frontend
+cd ../frontend
+npm install
+npm run dev
+
+# Open the UI at http://127.0.0.1:5174 and paste a repo URL to start a contribution job.
+```
+
 ## Known issues for testing
-- README lacks a quickstart example (left intentionally for PatchPilot to fill).
 - Security: dummy secrets committed in `exposed_credentials.txt` to verify leak detection.
