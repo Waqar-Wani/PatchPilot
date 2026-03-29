@@ -21,8 +21,8 @@ function Navbar() {
     { to: "/stats", label: "Stats" },
   ]
   return (
-    <div className="glass" style={{ display: "flex", alignItems: "center", padding: "12px 16px", gap: 14, marginBottom: 18 }}>
-      <div style={{ fontWeight: 800, letterSpacing: 0.4, fontSize: 16 }}>PatchPilot</div>
+    <div className="glass" style={{ display: "flex", alignItems: "center", padding: "12px 16px", gap: 14, marginBottom: 18, color: "#0a0a0a" }}>
+      <div style={{ fontWeight: 800, letterSpacing: 0.4, fontSize: 16, color: "#0a0a0a" }}>PatchPilot</div>
       <div style={{ display: "flex", gap: 10, fontSize: 14 }}>
         {links.map((l) => (
           <NavLink
@@ -32,9 +32,10 @@ function Navbar() {
               padding: "8px 12px",
               borderRadius: 10,
               textDecoration: "none",
-              color: isActive ? "#fff" : "#0B1224",
-              background: isActive ? "rgba(255,255,255,0.08)" : "transparent",
-              border: "1px solid rgba(255,255,255,0.08)",
+              color: isActive ? "#0a0a0a" : "#1f2937",
+              background: isActive ? "rgba(255,255,255,0.9)" : "transparent",
+              border: "1px solid rgba(15,23,42,0.08)",
+              boxShadow: isActive ? "0 6px 20px rgba(15,23,42,0.12)" : "none",
             })}
           >
             {l.label}
@@ -52,13 +53,13 @@ function Hero({ onSubmit, url, setUrl }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      style={{ padding: "18px", marginBottom: 16 }}
+      style={{ padding: "18px", marginBottom: 16, color: "#0a0a0a" }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
         <div>
           <div className="pill">Auto-contribute · AI powered</div>
-          <h1 style={{ margin: "10px 0 6px", fontSize: 24, letterSpacing: -0.2 }}>Ship tiny PRs fast</h1>
-          <p style={{ margin: 0, color: "#cdd9f5", fontSize: 14 }}>
+          <h1 style={{ margin: "10px 0 6px", fontSize: 24, letterSpacing: -0.2, color: "#0a0a0a" }}>Ship tiny PRs fast</h1>
+          <p style={{ margin: 0, color: "#0a0a0a", fontSize: 14 }}>
             Paste any public GitHub repo. PatchPilot scans README, hunts secrets/misconfigs, and opens a PR with small, safe fixes.
           </p>
         </div>
