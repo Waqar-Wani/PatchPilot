@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi import HTTPException
 from pymongo import MongoClient
 from bson import ObjectId
@@ -8,11 +8,13 @@ router = APIRouter()
 db = MongoClient(MONGO_URI)["patchpilot"]
 
 @router.get("/jobs")
-def list_jobs():
-    jobs = list(db["contributions"].find({}, {"logs": 0}).sort("created_at", -1).limit(50))
+def list_jobs(skip: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=200)):
+    cursor = db["contributions"].find({}, {"logs": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    jobs = list(cursor)
     for j in jobs:
         j["_id"] = str(j["_id"])
-    return jobs
+    total = db["contributions"].count_documents({})
+    return {"total": total, "items": jobs, "skip": skip, "limit": limit}
 
 @router.get("/jobs/{job_id}")
 def get_job(job_id: str):

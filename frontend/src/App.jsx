@@ -89,7 +89,7 @@ function Hero({ onSubmit, url, setUrl }) {
   )
 }
 
-function JobsTable({ jobs, onSelect, selected }) {
+function JobsTable({ jobs, onSelect, selected, pagination, onPage }) {
   return (
     <div className="glass" style={{ padding: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -141,6 +141,23 @@ function JobsTable({ jobs, onSelect, selected }) {
           </tbody>
         </table>
       </div>
+      {pagination && (
+        <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
+          <button className="btn-ghost" onClick={() => onPage(Math.max(0, pagination.skip - pagination.limit))} disabled={pagination.skip === 0}>
+            Prev
+          </button>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>
+            Showing {pagination.skip + 1}–{Math.min(pagination.skip + pagination.limit, pagination.total)} of {pagination.total}
+          </div>
+          <button
+            className="btn-ghost"
+            onClick={() => onPage(pagination.skip + pagination.limit)}
+            disabled={pagination.skip + pagination.limit >= pagination.total}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -179,14 +196,19 @@ function LogsPanel({ logs, onClose }) {
 function Dashboard() {
   const [url, setUrl] = useState("")
   const [jobs, setJobs] = useState([])
+  const [page, setPage] = useState({ skip: 0, limit: 20, total: 0 })
   const [selected, setSelected] = useState(null)
   const [logs, setLogs] = useState([])
 
-  const fetchJobs = () => api.get("/jobs").then((r) => setJobs(r.data))
+  const fetchJobs = (skip = page.skip) =>
+    api.get("/jobs", { params: { skip, limit: page.limit } }).then((r) => {
+      setJobs(r.data.items)
+      setPage({ skip: r.data.skip, limit: r.data.limit, total: r.data.total })
+    })
 
   useEffect(() => {
     fetchJobs()
-    const t = setInterval(fetchJobs, 4000)
+    const t = setInterval(() => fetchJobs(), 4000)
     return () => clearInterval(t)
   }, [])
 
@@ -220,6 +242,8 @@ function Dashboard() {
         jobs={jobs}
         onSelect={(id, deleteOnly = false) => (deleteOnly ? deleteJob(id) : setSelected(id))}
         selected={selected}
+        pagination={page}
+        onPage={(nextSkip) => fetchJobs(nextSkip)}
       />
       <AnimatePresence>{selected && <LogsPanel logs={logs} onClose={() => setSelected(null)} />}</AnimatePresence>
     </div>
@@ -434,11 +458,13 @@ function StatCard({ title, value, sub }) {
 function StatsPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState({ skip: 0, limit: 50, total: 0 })
 
-  const fetchStats = async () => {
+  const fetchStats = async (skip = page.skip) => {
     try {
-      const r = await api.get("/stats")
+      const r = await api.get("/stats", { params: { skip, limit: page.limit } })
       setData(r.data)
+      setPage({ skip: r.data.skip, limit: r.data.limit, total: r.data.total })
     } finally {
       setLoading(false)
     }
@@ -519,6 +545,21 @@ function StatsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
+          <button className="btn-ghost" onClick={() => fetchStats(Math.max(0, page.skip - page.limit))} disabled={page.skip === 0}>
+            Prev
+          </button>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>
+            Showing {page.skip + 1}–{Math.min(page.skip + page.limit, page.total)} of {page.total}
+          </div>
+          <button
+            className="btn-ghost"
+            onClick={() => fetchStats(page.skip + page.limit)}
+            disabled={page.skip + page.limit >= page.total}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
