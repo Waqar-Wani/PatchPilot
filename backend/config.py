@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-load_dotenv()
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
 
 GITHUB_TOKEN      = os.getenv("GITHUB_TOKEN")
 MONGO_URI         = os.getenv("MONGO_URI")

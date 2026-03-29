@@ -32,7 +32,10 @@ Schema (object):
 Rules:
 - Always attempt a small, safe improvement unless there is a hard blocker. Only SKIP for clear reasons (private/no access, binary-only, nothing readable).
 - README check: if README is missing or light on overview/setup/usage, propose a minimal docs improvement (contribution_type "docs").
-- Secrets/leaks check: scan file_tree/target_files for .env, keys, tokens, credentials, or obvious misconfig URLs. If any potential issue, add a new file `SECURITY_FINDINGS.md` summarizing suspected leaks/misconfig (contribution_type "security"). Keep it concise, factual, no sensitive data copies.
+- Secrets/leaks check:
+    * Scan for .env, credentials, tokens, keys, or obvious secrets.
+    * If found, propose: (a) delete the offending file or secret lines, (b) add the path to `.gitignore` if appropriate, and (c) add `SECURITY_FINDINGS.md` summarizing the issue without copying sensitive values.
+    * Set contribution_type to "security".
 - For "edit", include the exact original_snippet to replace; keep changes minimal and local.
 - Do not invent files that clearly don't belong. Avoid build/breaking changes.
 - Assume CLA not required.
