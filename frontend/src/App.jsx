@@ -17,6 +17,7 @@ function Navbar() {
     { to: "/", label: "Dashboard" },
     { to: "/how-it-works", label: "How it works" },
     { to: "/security", label: "Security Findings" },
+    { to: "/stats", label: "Stats" },
   ]
   return (
     <div className="glass" style={{ display: "flex", alignItems: "center", padding: "12px 16px", gap: 14, marginBottom: 18 }}>
@@ -264,6 +265,108 @@ function SecurityPage() {
   )
 }
 
+function StatCard({ title, value, sub }) {
+  return (
+    <div className="glass" style={{ padding: 14 }}>
+      <div style={{ fontSize: 12, color: "#9fb3ff", textTransform: "uppercase", letterSpacing: 0.8 }}>{title}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{sub}</div>}
+    </div>
+  )
+}
+
+function StatsPage() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const fetchStats = async () => {
+    try {
+      const r = await api.get("/stats")
+      setData(r.data)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  if (loading) return <div className="glass" style={{ padding: 18 }}>Loading stats…</div>
+  if (!data) return <div className="glass" style={{ padding: 18 }}>No stats yet.</div>
+
+  const { summary, runs } = data
+
+  return (
+    <div className="grid" style={{ gap: 14 }}>
+      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+        <StatCard title="Total runs" value={summary.total} sub="All jobs" />
+        <StatCard title="Completed" value={summary.done} sub="status: Done" />
+        <StatCard title="Skipped" value={summary.skipped} sub="No action taken" />
+        <StatCard title="Failed" value={summary.failed} sub="Errors" />
+        <StatCard title="Total cost" value={`$${(summary.total_cost_usd || 0).toFixed(4)}`} sub="Estimated" />
+        <StatCard
+          title="Avg cost per fix"
+          value={summary.avg_cost_per_fix ? `$${summary.avg_cost_per_fix.toFixed(4)}` : "—"}
+          sub="Done runs only"
+        />
+      </div>
+
+      <div className="glass" style={{ padding: 14 }}>
+        <h3 style={{ marginTop: 0, marginBottom: 8 }}>Runs</h3>
+        <div style={{ overflowX: "auto" }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Repo</th>
+                <th>Status</th>
+                <th>Severity</th>
+                <th>Files</th>
+                <th>Lines</th>
+                <th>PR</th>
+                <th>Tokens</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.map((r, i) => (
+                <tr key={i}>
+                  <td style={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {r.repo}
+                  </td>
+                  <td style={{ color: STATUS_COLORS[(r.status || "").toLowerCase()] || "#e5e7eb" }}>{r.status}</td>
+                  <td>{r.severity || "—"}</td>
+                  <td>
+                    {r.files
+                      ? `${r.files.edited || 0}e/${r.files.created || 0}c/${r.files.deleted || 0}d`
+                      : "—"}
+                  </td>
+                  <td>
+                    {r.changes
+                      ? `+${r.changes.lines_added || 0}/-${r.changes.lines_removed || 0}`
+                      : "—"}
+                  </td>
+                  <td>
+                    {r.pr_url ? (
+                      <a href={r.pr_url} target="_blank" rel="noreferrer" style={{ color: "#7dd3fc" }}>
+                        PR
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>{r.tokens_used ?? "—"}</td>
+                  <td>{r.cost_usd != null ? `$${r.cost_usd.toFixed(4)}` : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -273,6 +376,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/security" element={<SecurityPage />} />
+          <Route path="/stats" element={<StatsPage />} />
         </Routes>
       </div>
     </BrowserRouter>
