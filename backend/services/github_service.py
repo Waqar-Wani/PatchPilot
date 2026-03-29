@@ -94,11 +94,18 @@ def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") 
         local_repo.git.push("origin", branch)
         log("Branch pushed")
 
+        pr_title = ai_result["git"].get("pr_title") or "PatchPilot contribution"
+        pr_body  = ai_result["git"].get("pr_body")  or "Automated contribution by PatchPilot."
+        if not pr_head:
+            raise ValueError("PR head is missing")
+        if not repo.default_branch:
+            raise ValueError("Target repo default branch is missing")
+
         pr = repo.create_pull(
-            title=ai_result["git"]["pr_title"],
-            body=ai_result["git"]["pr_body"],
-            head=pr_head,
-            base=repo.default_branch
+            title=str(pr_title),
+            body=str(pr_body),
+            head=str(pr_head),
+            base=str(repo.default_branch)
         )
         log(f"PR opened: {pr.html_url}")
         return pr.html_url
