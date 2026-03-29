@@ -276,7 +276,7 @@ function LandingPage() {
           <div style={{ flex: 1 }}>
             <div className="pill">PatchPilot · AI agent for tiny PRs</div>
             <h1 style={{ fontSize: 30, margin: "12px 0 8px" }}>Ship safe PRs with measurable impact</h1>
-            <p style={{ color: "#cbd5f5", maxWidth: 560 }}>
+            <p style={{ color: "#0b1224", maxWidth: 560 }}>
               PatchPilot scans repos, proposes small fixes, and opens PRs with security, docs, and maintenance
               improvements. Now with live stats, costs, and credibility signals.
             </p>
