@@ -8,6 +8,8 @@ from datetime import datetime
 from bson import ObjectId
 import uuid
 
+SENSITIVE_HINTS = ("secret", "credential", "token", "key", ".env", ".pem", ".pfx", ".p12", ".keystore")
+
 db = MongoClient(MONGO_URI)["patchpilot"]
 
 @celery.task(bind=True)
@@ -39,6 +41,11 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         result["git"].setdefault("commit_message", "PatchPilot automatic contribution")
         result["git"].setdefault("pr_title", "PatchPilot automatic contribution")
         result["git"].setdefault("pr_body", "This PR was created by PatchPilot.")
+        result.setdefault("changes", [])
+        result.setdefault("analysis", {})
+        result["analysis"].setdefault("contribution_type", "general")
+        result.setdefault("confidence", 0.5)
+        result.setdefault("action", "SKIP")
 
         # Fallback: if secrets are present but AI chose to skip or didn't plan removals, enforce security remediation.
         sensitive = snapshot.get("sensitive_files") or []
@@ -90,6 +97,63 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
                 "original_snippet": None,
                 "replacement_snippet": findings
             })
+            # allow deletion only for the sensitive files we detected
+            result["allowed_deletes"] = [f["path"] for f in sensitive]
+
+        # Evidence gate: only proceed if we have a verified issue (sensitive files)
+        evidence_present = bool(sensitive)
+        if not evidence_present:
+            db["contributions"].update_one(
+                {"_id": ObjectId(job_id)},
+                {"$set": {
+                    "status":      "skipped",
+                    "action":      "SKIP",
+                    "skip_reason": "No actionable issue found",
+                    "updated_at":  datetime.utcnow()
+                }}
+            )
+            return
+
+        # Validate changes for safety and completeness
+        def abort_skip(reason: str):
+            log(reason)
+            db["contributions"].update_one(
+                {"_id": ObjectId(job_id)},
+                {"$set": {
+                    "status":      "skipped",
+                    "action":      "SKIP",
+                    "skip_reason": reason,
+                    "updated_at":  datetime.utcnow()
+                }}
+            )
+            return "SKIPPED"
+
+        if not result["changes"] or len(result["changes"]) == 0:
+            if abort_skip("Empty patch") == "SKIPPED":
+                return
+
+        allowed_deletes = result.get("allowed_deletes", [])
+
+        for change in result["changes"]:
+            ctype = change.get("change_type")
+            if ctype not in {"create", "edit", "delete"}:
+                if abort_skip(f"Invalid change type: {ctype}") == "SKIPPED":
+                    return
+
+            # Strict None/empty checks
+            if ctype in {"create", "edit"}:
+                content = change.get("replacement_snippet")
+                if content is None or str(content).strip() == "":
+                    if abort_skip(f"Empty content for {ctype} on {change.get('file_path')}") == "SKIPPED":
+                        return
+            if ctype == "edit":
+                if change.get("original_snippet") is None:
+                    if abort_skip(f"Missing original_snippet for edit on {change.get('file_path')}") == "SKIPPED":
+                        return
+            if ctype == "delete":
+                if change.get("file_path") not in allowed_deletes:
+                    if abort_skip(f"Unsafe operation: deletion not allowed for {change.get('file_path')}") == "SKIPPED":
+                        return
 
         if result["action"] == "SKIP":
             db["contributions"].update_one(
