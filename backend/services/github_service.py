@@ -1,5 +1,6 @@
 import os, shutil, traceback
 from git import Repo
+from git.exc import GitCommandError
 from github import Github
 from config import GITHUB_TOKEN, CLONE_DIR
 import time
@@ -34,10 +35,13 @@ def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") 
         # allow fork to be ready
         time.sleep(2)
 
+    def clone_repo(target_repo):
+        auth_url = target_repo.clone_url.replace("https://", f"https://{GITHUB_TOKEN}@")
+        return Repo.clone_from(auth_url, local_path)
+
     try:
         log(f"Cloning repository ({'fork' if resolved_mode=='fork_and_pr' else 'origin'})")
-        auth_url   = push_repo.clone_url.replace("https://", f"https://{GITHUB_TOKEN}@")
-        local_repo = Repo.clone_from(auth_url, local_path)
+        local_repo = clone_repo(push_repo)
 
         branch = ai_result["git"].get("branch_name") or "patchpilot/auto"
         log(f"Creating branch: {branch}")
@@ -92,8 +96,25 @@ def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") 
         local_repo.index.commit(str(commit_message))
         log("Changes committed")
 
-        local_repo.git.push("origin", branch)
-        log("Branch pushed")
+        try:
+            local_repo.git.push("origin", branch)
+            log("Branch pushed")
+        except GitCommandError as e:
+            if "permission" in str(e).lower() or "403" in str(e):
+                log("Push denied; retrying via fork")
+                fork = repo.create_fork()
+                push_repo = fork
+                pr_head = f"{current_user}:{branch}"
+                shutil.rmtree(local_path, ignore_errors=True)
+                local_repo = clone_repo(push_repo)
+                local_repo.git.checkout("-b", branch)
+                local_repo.git.add("--all")
+                local_repo.index.commit(commit_message)
+                local_repo.git.push("origin", branch)
+                log("Branch pushed via fork")
+                resolved_mode = "fork_and_pr"
+            else:
+                raise
 
         pr_title = ai_result["git"].get("pr_title") or "PatchPilot contribution"
         pr_body  = ai_result["git"].get("pr_body")  or "Automated contribution by PatchPilot."
