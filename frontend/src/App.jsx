@@ -310,18 +310,6 @@ function LandingPage() {
                   <strong>{summary?.avg_cost_per_fix ? `$${summary.avg_cost_per_fix.toFixed(4)}` : "—"}</strong>
                   <small>Estimated tokens</small>
                 </div>
-                <div className="bars">
-                  {[50, 70, 40, 90, 60].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      className="bar"
-                      style={{ height: h }}
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ delay: i * 0.1, type: "spring", stiffness: 120 }}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </div>
