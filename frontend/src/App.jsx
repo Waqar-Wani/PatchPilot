@@ -443,41 +443,9 @@ function HowItWorks() {
   )
 }
 
+// Security content folded into HowItWorks page; route preserved for backward links
 function SecurityPage() {
-  return (
-    <motion.div className="glass" style={{ padding: 18 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <h2 style={{ marginTop: 0 }}>Security findings</h2>
-      <div className="security-grid">
-        <div className="glass sec-card">
-          <div className="pill">Secret hunting</div>
-          <h3 className="card-title">Automatic leak detection</h3>
-          <p>We scan filenames (.env, key, token, credential, pem) and contents; flagged files trigger remediation.</p>
-        </div>
-        <div className="glass sec-card">
-          <div className="pill">Safe remediation</div>
-          <h3 className="card-title">No raw secrets in PR</h3>
-          <p>Secrets are deleted/ignored and documented in SECURITY_FINDINGS.md. We never echo secret values.</p>
-        </div>
-        <div className="glass sec-card">
-          <div className="pill">Guardrails</div>
-          <h3 className="card-title">Delete whitelist</h3>
-          <p>Only detected secret files can be removed; all other deletes are blocked. Edits require non-empty content.</p>
-        </div>
-        <div className="glass sec-card">
-          <div className="pill">Signals</div>
-          <h3 className="card-title">Severity & metrics</h3>
-          <p>Security fixes are marked critical, with token/cost metrics and PR links surfaced in Stats.</p>
-        </div>
-      </div>
-      <div className="sec-cta">
-        <div>
-          <h4 style={{ margin: "0 0 6px" }}>Try a security run</h4>
-          <p style={{ margin: 0 }}>Paste a repo with a test secret file (e.g., exposed_credentials.txt) and watch the PR.</p>
-        </div>
-        <div className="shield">🛡️</div>
-      </div>
-    </motion.div>
-  )
+  return <HowItWorks />
 }
 
 function StatCard({ title, value, sub }) {
