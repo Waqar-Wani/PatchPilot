@@ -17,6 +17,8 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
 
     def log(msg: str):
         entry = {"time": datetime.utcnow().isoformat(), "msg": msg}
+        # also emit to stdout for live visibility in worker terminal
+        print(f"[job {job_id}] {msg}", flush=True)
         db["contributions"].update_one(
             {"_id": ObjectId(job_id)},
             {"$push": {"logs": entry}, "$set": {"updated_at": datetime.utcnow()}}
@@ -55,6 +57,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
                 low = line.lower()
                 if any(h in low for h in ("secret", "credential", "token", "key", ".env", ".pem", ".pfx", ".p12", ".keystore")):
                     sensitive.append({"path": line.strip(), "content": ""})
+        log(f"Sensitive files detected: {len(sensitive)}")
 
         if sensitive:
             if result.get("action") == "SKIP":
@@ -99,10 +102,12 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             })
             # allow deletion only for the sensitive files we detected
             result["allowed_deletes"] = [f["path"] for f in sensitive]
+            log("Security remediation plan assembled")
 
         # Evidence gate: only proceed if we have a verified issue (sensitive files)
         evidence_present = bool(sensitive)
         if not evidence_present:
+            log("No evidence found; skipping")
             db["contributions"].update_one(
                 {"_id": ObjectId(job_id)},
                 {"$set": {
@@ -139,6 +144,8 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             if ctype not in {"create", "edit", "delete"}:
                 if abort_skip(f"Invalid change type: {ctype}") == "SKIPPED":
                     return
+            else:
+                log(f"Validating change: {ctype} {change.get('file_path')}")
 
             # Strict None/empty checks
             if ctype in {"create", "edit"}:
@@ -154,6 +161,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
                 if change.get("file_path") not in allowed_deletes:
                     if abort_skip(f"Unsafe operation: deletion not allowed for {change.get('file_path')}") == "SKIPPED":
                         return
+        log("All changes validated; proceeding to run contribution")
 
         if result["action"] == "SKIP":
             db["contributions"].update_one(
