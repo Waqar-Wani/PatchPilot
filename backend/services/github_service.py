@@ -27,6 +27,13 @@ def run_contribution(repo_url: str, ai_result: dict, log) -> str:
                     f.write(change["replacement_snippet"])
                 log(f"Created: {change['file_path']}")
 
+            elif change["change_type"] == "delete":
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+                    log(f"Deleted: {change['file_path']}")
+                else:
+                    log(f"Delete skipped (not found): {change['file_path']}")
+
             elif change["change_type"] == "edit":
                 with open(full_path, "r") as f:
                     content = f.read()
