@@ -47,7 +47,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         result["git"].setdefault("pr_body", "This PR was created by PatchPilot.")
         result.setdefault("changes", [])
         result.setdefault("analysis", {})
-        result["analysis"].setdefault("contribution_type", "general")
+        result["analysis"].setdefault("contribution_type", "General")
         result.setdefault("confidence", 0.5)
         result.setdefault("action", "SKIP")
 
@@ -65,7 +65,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             if result.get("action") == "SKIP":
                 result["action"] = "CONTRIBUTE"
                 result["skip_reason"] = None
-            result.setdefault("analysis", {}).setdefault("contribution_type", "security")
+            result.setdefault("analysis", {}).setdefault("contribution_type", "Security")
             result.setdefault("git", {})
             result["git"].setdefault("branch_name", f"patchpilot/remove-secrets-{uuid.uuid4().hex[:6]}")
             result["git"].setdefault("commit_message", "Remove committed secrets and add security findings")
@@ -209,7 +209,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
                         "lines_added": sum((c.get("replacement_snippet") or "").count("\n") + 1 for c in result["changes"] if c["change_type"] in {"create", "edit"}),
                         "lines_removed": sum((c.get("original_snippet") or "").count("\n") + 1 for c in result["changes"] if c["change_type"] == "edit" and c.get("original_snippet")),
                     },
-                    "severity": "critical" if result["analysis"].get("contribution_type") == "security" else "medium",
+                    "severity": "critical" if result["analysis"].get("contribution_type") == "Security" else "medium",
                     "time_seconds": None,
                     "tokens_used": usage.get("total_tokens") if usage else None,
                     "cost_usd": ((usage.get("total_tokens") or 0) / 1000 * OPENROUTER_COST_PER_1K) if usage else None,
