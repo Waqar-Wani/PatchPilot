@@ -77,3 +77,7 @@ npm run dev   # defaults to http://127.0.0.1:5174
 - Runs minimal, low-risk changes (docs/tests/security summaries).
 - Skips only on hard blockers (no access/binary-only). Otherwise, it prefers a small contribution.
 - dfds: Done For Developer Sanity—tiny, friendly PRs instead of giant refactors. 😅
+
+## Known issues for testing
+- README lacks a quickstart example (left intentionally for PatchPilot to fill).
+- Security: dummy secrets committed in `exposed_credentials.txt` to verify leak detection.
