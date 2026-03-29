@@ -5,11 +5,11 @@ import api from "./api/client"
 import "./styles.css"
 
 const STATUS_COLORS = {
-  pending: "#9ca3af",
-  running: "#38bdf8",
-  done: "#22c55e",
-  skipped: "#f59e0b",
-  failed: "#ef4444",
+  Pending: "#9ca3af",
+  Running: "#38bdf8",
+  Done: "#22c55e",
+  Skipped: "#f59e0b",
+  Failed: "#ef4444",
 }
 
 function Navbar() {
@@ -117,8 +117,8 @@ function JobsTable({ jobs, onSelect, selected }) {
                 </td>
                 <td style={{ color: "#cbd5f5" }}>{j.contribution_type || "—"}</td>
                 <td>
-                  <span className="status" style={{ color: STATUS_COLORS[j.status] }}>
-                    {j.status}
+                  <span className="status" style={{ color: STATUS_COLORS[(j.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())] }}>
+                    {(j.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())}
                   </span>
                 </td>
                 <td>
@@ -334,7 +334,9 @@ function StatsPage() {
                   <td style={{ maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {r.repo}
                   </td>
-                  <td style={{ color: STATUS_COLORS[(r.status || "").toLowerCase()] || "#e5e7eb" }}>{r.status}</td>
+                  <td style={{ color: STATUS_COLORS[(r.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())] || "#e5e7eb" }}>
+                    {(r.status || "").replace(/^[a-z]/, (c) => c.toUpperCase())}
+                  </td>
                   <td>{r.severity || "—"}</td>
                   <td>
                     {r.files
