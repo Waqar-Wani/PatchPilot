@@ -269,7 +269,7 @@ function LandingPage() {
         transition={{ duration: 0.4 }}
         style={{
           padding: 22,
-          background: "linear-gradient(135deg, rgba(91,141,255,0.18), rgba(124,58,237,0.2))",
+          background: "linear-gradient(135deg, rgba(255, 214, 102, 0.35), rgba(124, 175, 255, 0.28))",
         }}
       >
         <div style={{ display: "flex", gap: 18, alignItems: "center", justifyContent: "space-between" }}>
