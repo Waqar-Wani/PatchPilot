@@ -73,9 +73,9 @@ function Hero({ onSubmit, url, setUrl }) {
                 width: "100%",
                 padding: "12px",
                 borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.04)",
-                color: "#fff",
+                border: "1px solid rgba(15,23,42,0.12)",
+                background: "rgba(255,255,255,0.9)",
+                color: "#0a0a0a",
                 fontSize: 14,
                 marginBottom: 10,
               }}
