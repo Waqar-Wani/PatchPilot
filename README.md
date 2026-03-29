@@ -67,6 +67,15 @@ npm run dev   # defaults to http://127.0.0.1:5174
 3. Watch status/logs update live; a PR link appears when done.
 4. Use the Delete action to clean old jobs.
 
+### Quickstart Example
+```bash
+# 1. Run the PatchPilot UI and backend services
+# 2. Visit http://127.0.0.1:5174
+# 3. Paste a test repository URL (e.g. https://github.com/octocat/Hello-World)
+# 4. Observe PatchPilot analyzing the repo and opening a small PR
+# 5. Check the PR for suggested improvements (README/docs, security findings, etc.)
+```
+
 ## Deployment 🌐
 - API: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 - Worker: `celery -A celery_app worker --loglevel=info`
