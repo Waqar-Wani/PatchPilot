@@ -293,28 +293,90 @@ function LandingPage() {
       </motion.div>
 
       <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
-        <div className="glass" style={{ padding: 14 }}>
-          <div className="pill">Credibility</div>
-          <h3 className="card-title">Measured performance</h3>
-          <p style={{ color: "#cbd5f5" }}>
-            Every run logs tokens, cost, files changed, severity, and outcome. See the stats page for live numbers.
-          </p>
-        </div>
-        <div className="glass" style={{ padding: 14 }}>
-          <div className="pill">Safety</div>
-          <h3 className="card-title">Guardrails on by default</h3>
-          <p style={{ color: "#cbd5f5" }}>
-            Strict validation, delete restrictions, and evidence gates keep patches small and reversible.
-          </p>
-        </div>
-        <div className="glass" style={{ padding: 14 }}>
-          <div className="pill">Speed</div>
-          <h3 className="card-title">Tiny PRs in minutes</h3>
-          <p style={{ color: "#cbd5f5" }}>
-            Focus on single, high-confidence edits: README gaps, leaked secrets, and misconfigs.
-          </p>
-        </div>
+        {[
+          { title: "Credibility", body: "Every run logs tokens, cost, files changed, severity, and outcome. See the stats page for live numbers." },
+          { title: "Safety", body: "Strict validation, delete restrictions, and evidence gates keep patches small and reversible." },
+          { title: "Speed", body: "Focus on single, high-confidence edits: README gaps, leaked secrets, and misconfigs." },
+        ].map((card, i) => (
+          <motion.div
+            key={card.title}
+            className="glass"
+            style={{ padding: 14 }}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ delay: i * 0.08 }}
+          >
+            <div className="pill">{card.title}</div>
+            <h3 className="card-title">{card.title === "Credibility" ? "Measured performance" : card.title === "Safety" ? "Guardrails on by default" : "Tiny PRs in minutes"}</h3>
+            <p style={{ color: "#cbd5f5" }}>{card.body}</p>
+          </motion.div>
+        ))}
       </div>
+
+      <motion.div
+        className="glass"
+        style={{ padding: 18, overflow: "hidden" }}
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+      >
+        <div className="pill">Architecture</div>
+        <h3 className="card-title">How PatchPilot is wired</h3>
+        <div className="arch-grid">
+          <div>
+            <h4>Backend (FastAPI + Celery)</h4>
+            <ul>
+              <li>FastAPI REST: `/api/contribute`, `/api/jobs`, `/api/stats`</li>
+              <li>Celery worker executes git ops, applies patches, opens PRs</li>
+              <li>MongoDB stores jobs, logs, metrics</li>
+              <li>Redis broker for task queueing</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Analysis loop</h4>
+            <ul>
+              <li>Repo snapshot (README, file tree, sensitive hints)</li>
+              <li>LLM via OpenRouter with guardrails + verification</li>
+              <li>Safety gates: evidence check, delete whitelist, non-empty content</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Git + PR flow</h4>
+            <ul>
+              <li>Clone (fork if no push rights)</li>
+              <li>Apply scoped changes, commit with defaults</li>
+              <li>Push branch and open PR with summary</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Metrics & trust</h4>
+            <ul>
+              <li>Tokens, cost, files/lines changed, severity per run</li>
+              <li>Success/skip/fail counts and cost per fix</li>
+              <li>Visible in UI stats page and `/api/stats` JSON</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="glass"
+        style={{ padding: 18 }}
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+      >
+        <div className="pill">DFDs & data flow (text)</div>
+        <p style={{ color: "#cbd5f5", marginBottom: 6 }}>
+          Request → Snapshot → LLM plan → Validation → Git apply → PR → Metrics → Stats.
+        </p>
+        <p style={{ color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>
+          Inputs: repo URL, prior history. Outputs: PR link, SECURITY_FINDINGS, metrics (tokens, cost, files/lines, severity).
+          Stores: Mongo (jobs, logs, metrics), Redis (tasks), GitHub PRs. Controls: delete whitelist, empty-content guard,
+          branch defaults, fork safety for read-only repos.
+        </p>
+      </motion.div>
     </div>
   )
 }
