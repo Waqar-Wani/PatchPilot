@@ -408,9 +408,11 @@ function LandingPage() {
 function HowItWorks() {
   const steps = useMemo(
     () => [
-      { title: "Scan & snapshot", body: "We fetch README, key files, open issues, and build a concise snapshot." },
-      { title: "Analyze", body: "LLM selects a small, safe improvement: docs, tests, or security notes." },
-      { title: "Patch & PR", body: "We branch, apply the patch, push, and open a PR with friendly context." },
+      { title: "Scan & snapshot", body: "We fetch README, key files, open issues, and build a concise snapshot.", emoji: "📥" },
+      { title: "Analyze", body: "LLM selects a small, safe improvement: docs, tests, or security notes.", emoji: "🧠" },
+      { title: "Guardrails", body: "Evidence gate, delete whitelist, empty-content checks, branch defaults.", emoji: "🛡️" },
+      { title: "Patch & PR", body: "We branch (or fork), apply the patch, push, and open a PR with friendly context.", emoji: "🚀" },
+      { title: "Measure", body: "Tokens, cost, files/lines changed, severity, PR link are logged to stats.", emoji: "📊" },
     ],
     []
   )
@@ -419,13 +421,24 @@ function HowItWorks() {
       <h2 style={{ marginTop: 0 }}>How it works</h2>
       <div className="hero-grid">
         {steps.map((s, i) => (
-          <div key={i} className="glass" style={{ padding: 16 }}>
+          <motion.div
+            key={i}
+            className="glass"
+            style={{ padding: 16, position: "relative", overflow: "hidden" }}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <div className="floating-emoji">{s.emoji}</div>
             <div className="pill">Step {i + 1}</div>
             <h3 className="card-title">{s.title}</h3>
-            <p style={{ color: "#0B1224", margin: 0 }}>{s.body}</p>
-          </div>
+            <p style={{ color: "#0a0a0a", margin: 0 }}>{s.body}</p>
+          </motion.div>
         ))}
       </div>
+      <p style={{ color: "#0a0a0a", marginTop: 12 }}>
+        Want proof? Run a repo, then open the Stats page: success/skip/fail counts, cost, tokens, severity, and PR links are recorded.
+      </p>
     </motion.div>
   )
 }
@@ -434,13 +447,35 @@ function SecurityPage() {
   return (
     <motion.div className="glass" style={{ padding: 18 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <h2 style={{ marginTop: 0 }}>Security findings</h2>
-      <p style={{ color: "#0B1224" }}>
-        When PatchPilot detects possible secrets or misconfig (e.g., .env files, tokens, hardcoded URLs), it adds a
-        `SECURITY_FINDINGS.md` file summarizing what to fix without exposing sensitive values.
-      </p>
-      <p style={{ color: "#0B1224" }}>
-        Run a fresh contribution on any repo to see this in action; findings will appear in the PR and job log.
-      </p>
+      <div className="security-grid">
+        <div className="glass sec-card">
+          <div className="pill">Secret hunting</div>
+          <h3 className="card-title">Automatic leak detection</h3>
+          <p>We scan filenames (.env, key, token, credential, pem) and contents; flagged files trigger remediation.</p>
+        </div>
+        <div className="glass sec-card">
+          <div className="pill">Safe remediation</div>
+          <h3 className="card-title">No raw secrets in PR</h3>
+          <p>Secrets are deleted/ignored and documented in SECURITY_FINDINGS.md. We never echo secret values.</p>
+        </div>
+        <div className="glass sec-card">
+          <div className="pill">Guardrails</div>
+          <h3 className="card-title">Delete whitelist</h3>
+          <p>Only detected secret files can be removed; all other deletes are blocked. Edits require non-empty content.</p>
+        </div>
+        <div className="glass sec-card">
+          <div className="pill">Signals</div>
+          <h3 className="card-title">Severity & metrics</h3>
+          <p>Security fixes are marked critical, with token/cost metrics and PR links surfaced in Stats.</p>
+        </div>
+      </div>
+      <div className="sec-cta">
+        <div>
+          <h4 style={{ margin: "0 0 6px" }}>Try a security run</h4>
+          <p style={{ margin: 0 }}>Paste a repo with a test secret file (e.g., exposed_credentials.txt) and watch the PR.</p>
+        </div>
+        <div className="shield">🛡️</div>
+      </div>
     </motion.div>
   )
 }

@@ -117,6 +117,38 @@ button { font-family: inherit; }
   font-size: 15px;
 }
 
+.floating-emoji {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 26px;
+  opacity: 0.85;
+  animation: bounce 3s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.sec-card {
+  padding: 14px;
+}
+.sec-cta {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.shield {
+  font-size: 32px;
+}
 .card-title {
   margin: 0 0 8px;
   font-size: 18px;
