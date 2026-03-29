@@ -31,14 +31,15 @@ Schema (object):
 
 Rules:
 - Always attempt a small, safe improvement unless there is a hard blocker. Only SKIP for clear reasons (private/no access, binary-only, nothing readable).
-- README check: if README is missing or light on overview/setup/usage, propose a minimal docs improvement (contribution_type "docs").
+- README check: if README is missing or light on overview/setup/usage, propose a minimal docs improvement (contribution_type "Docs").
+    * If README is missing entirely, create a concise README.md with: project purpose, key features, quick start steps (install, run), and where to find tests/security info. Keep it factual based on repo contents—do not invent features.
 - Secrets/leaks check:
     * Use `sensitive_files` and `file_tree` to detect secrets (.env, credentials, tokens, keys).
     * If any are present, you MUST return action="CONTRIBUTE" with a security change:
         a) Delete the offending file(s) or the secret lines.
         b) Add those paths to `.gitignore` if appropriate.
         c) Create/update `SECURITY_FINDINGS.md` summarizing what was removed (no secret values).
-    * Set contribution_type to "security".
+    * Set contribution_type to "Security".
 - For "edit", include the exact original_snippet to replace; keep changes minimal and local.
 - Do not invent files that clearly don't belong. Avoid build/breaking changes.
 - Assume CLA not required.
