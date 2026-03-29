@@ -14,7 +14,7 @@ def run_contribution(repo_url: str, ai_result: dict, log) -> str:
         auth_url   = repo_url.replace("https://", f"https://{GITHUB_TOKEN}@")
         local_repo = Repo.clone_from(auth_url, local_path)
 
-        branch = ai_result["git"]["branch_name"]
+        branch = ai_result["git"].get("branch_name") or "patchpilot/auto"
         log(f"Creating branch: {branch}")
         local_repo.git.checkout("-b", branch)
 

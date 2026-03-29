@@ -29,8 +29,16 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         log("Building repo snapshot")
         snapshot = build_snapshot(repo_url, history)
 
-        log("Analyzing with Claude")
+        log("Analyzing with AI")
         result = analyze_repo(snapshot)
+
+        # Ensure git block exists with sane defaults
+        result.setdefault("git", {})
+        if not result["git"].get("branch_name"):
+            result["git"]["branch_name"] = f"patchpilot/auto-{uuid.uuid4().hex[:6]}"
+        result["git"].setdefault("commit_message", "PatchPilot automatic contribution")
+        result["git"].setdefault("pr_title", "PatchPilot automatic contribution")
+        result["git"].setdefault("pr_body", "This PR was created by PatchPilot.")
 
         # Fallback: if secrets are present but AI chose to skip or didn't plan removals, enforce security remediation.
         sensitive = snapshot.get("sensitive_files") or []
@@ -95,7 +103,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
             )
             return
 
-        log("Claude approved — making contribution")
+        log("AI approved — making contribution")
         pr_url = run_contribution(repo_url, result, log)
 
         db["contributions"].update_one(
