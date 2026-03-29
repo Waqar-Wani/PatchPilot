@@ -88,7 +88,8 @@ def run_contribution(repo_url: str, ai_result: dict, log, mode: str = "manual") 
                 log(f"Edited: {change['file_path']}")
 
         local_repo.git.add("--all")
-        local_repo.index.commit(ai_result["git"]["commit_message"])
+        commit_message = ai_result["git"].get("commit_message") or "PatchPilot automatic contribution"
+        local_repo.index.commit(str(commit_message))
         log("Changes committed")
 
         local_repo.git.push("origin", branch)
