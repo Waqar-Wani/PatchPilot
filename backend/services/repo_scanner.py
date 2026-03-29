@@ -4,8 +4,28 @@ from config import GITHUB_TOKEN
 g = Github(GITHUB_TOKEN)
 
 PRIORITY_FILES = [
-    "README.md", "readme.md", "CONTRIBUTING.md", "LICENSE", ".gitignore"
+    "README.md",
+    "readme.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    ".gitignore",
+    ".env",
+    ".env.example",
+    "SECURITY_FINDINGS.md",
+    "exposed_credentials.txt",
 ]
+
+SENSITIVE_NAME_HINTS = (
+    "secret",
+    "credential",
+    "token",
+    "key",
+    ".env",
+    ".pem",
+    ".pfx",
+    ".p12",
+    ".keystore",
+)
 
 def get_file_tree(repo) -> str:
     lines = []
@@ -21,6 +41,30 @@ def get_file_tree(repo) -> str:
             pass
     walk()
     return "\n".join(lines)
+
+def collect_sensitive_files(repo) -> list:
+    """Collect small, potentially sensitive files to surface to the LLM."""
+    collected = []
+
+    def walk(path="", depth=0):
+        if depth > 3:
+            return
+        try:
+            for item in repo.get_contents(path):
+                name = item.path.lower()
+                if item.type == "file" and any(h in name for h in SENSITIVE_NAME_HINTS):
+                    try:
+                        content = item.decoded_content.decode("utf-8", errors="ignore")[:4000]
+                        collected.append({"path": item.path, "content": content})
+                    except Exception:
+                        pass
+                if item.type == "dir":
+                    walk(item.path, depth + 1)
+        except Exception:
+            pass
+
+    walk()
+    return collected
 
 def get_file(repo, path: str) -> str:
     try:
@@ -53,6 +97,7 @@ def build_snapshot(repo_url: str, history: list) -> dict:
         "file_tree":            get_file_tree(repo),
         "readme":               get_file(repo, "README.md"),
         "target_files":         target_files,
+        "sensitive_files":      collect_sensitive_files(repo),
         "open_issues":          issues,
         "languages":            languages,
         "contribution_history": history,
