@@ -21,6 +21,12 @@ button { font-family: inherit; }
   backdrop-filter: blur(10px);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(15,23,42,0.12);
+  color: #0f172a;
+}
+
+.glass h1, .glass h2, .glass h3, .glass h4,
+.glass p, .glass li, .glass a, .glass small, .glass strong, .glass span {
+  color: #0f172a;
 }
 
 .pill {
