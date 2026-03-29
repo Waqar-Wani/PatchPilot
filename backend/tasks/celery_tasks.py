@@ -164,6 +164,7 @@ def process_contribution(self, job_id: str, repo_url: str, mode: str, history: l
         log("All changes validated; proceeding to run contribution")
 
         if result["action"] == "SKIP":
+            log(f"AI returned SKIP: {result.get('skip_reason')}")
             db["contributions"].update_one(
                 {"_id": ObjectId(job_id)},
                 {"$set": {
